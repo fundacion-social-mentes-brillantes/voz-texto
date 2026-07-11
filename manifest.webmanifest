@@ -1,0 +1,17 @@
+{
+  "name": "Voz-Texto · Estudio de voz",
+  "short_name": "Voz-Texto",
+  "description": "Convierte cualquier texto en voz humana y expresiva.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "lang": "es",
+  "background_color": "#092622",
+  "theme_color": "#0F3630",
+  "categories": ["productivity", "utilities"],
+  "icons": [
+    { "src": "/icono.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icono.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}

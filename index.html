@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Voz-Texto · Estudio de voz</title>
+<meta name="theme-color" content="#0F3630">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icono.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icono.svg">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Voz-Texto">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#092622; --bg2:#0d332d; --card:#10403a; --card2:#155048;
+    --border:#1e5c52; --fg:#f2ede0; --muted:#9dbfb5;
+    --gold:#e2c67c; --gold2:#c0963c; --aqua:#2faa98; --error:#e8b84d;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:Inter,system-ui,sans-serif;
+    background:
+      radial-gradient(60% 50% at 100% 0%, rgba(226,198,124,.07), transparent 60%),
+      radial-gradient(50% 40% at 0% 100%, rgba(47,170,152,.08), transparent 70%),
+      var(--bg);
+    color:var(--fg); min-height:100vh; padding:22px 16px 60px;
+    padding-top:max(22px, env(safe-area-inset-top));
+  }
+  .wrap{max-width:1060px;margin:0 auto}
+  header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px}
+  h1{font-family:Fraunces,serif;font-size:clamp(24px,5vw,34px);color:var(--gold);line-height:1.1}
+  h1 small{display:block;font-family:Inter;font-size:12px;font-weight:500;color:var(--muted);margin-top:5px}
+  .pill{background:var(--card);border:1px solid var(--border);border-radius:999px;padding:8px 15px;font-size:13px;font-weight:600;color:var(--muted)}
+  .pill b{color:var(--gold)}
+  .grid{display:grid;grid-template-columns:1.15fr .85fr;gap:16px}
+  @media(max-width:820px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:18px}
+  label{display:block;font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+  textarea,select,input{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:14px;color:var(--fg);font-family:Inter;font-size:16px;padding:13px 14px;outline:none}
+  textarea:focus,select:focus,input:focus{border-color:var(--gold2)}
+  textarea{min-height:160px;resize:vertical;line-height:1.6}
+  .cnt{text-align:right;font-size:12px;color:var(--muted);margin-top:5px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{background:var(--bg2);border:1px solid var(--border);color:var(--muted);border-radius:999px;padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer;transition:.15s}
+  .chip:hover{color:var(--fg)} .chip.on{background:linear-gradient(120deg,var(--gold2),var(--gold));color:#123f38;border-color:transparent}
+  .sec{margin-top:16px}
+  button.big{margin-top:18px;width:100%;border:none;cursor:pointer;border-radius:999px;background:linear-gradient(120deg,var(--gold2),var(--gold),var(--gold2));color:#123f38;font-size:17px;font-weight:800;padding:16px;box-shadow:0 6px 30px rgba(226,198,124,.22);transition:.15s}
+  button.big:hover{filter:brightness(1.06)} button.big:disabled{opacity:.55;cursor:wait}
+  .estado{margin-top:12px;font-size:14px;color:var(--muted);text-align:center;min-height:20px}
+  .estado.err{color:var(--error);font-weight:600}
+  .bar{height:8px;width:100%;background:var(--bg2);border-radius:999px;overflow:hidden;margin-top:10px;display:none}
+  .bar.on{display:block} .bar>div{height:100%;background:linear-gradient(90deg,var(--aqua),var(--gold));width:0;transition:width .3s}
+  .res{display:none;margin-top:16px;background:var(--card2);border-radius:16px;padding:16px}
+  .res.on{display:block;animation:fade .4s} @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1}}
+  audio{width:100%;margin:6px 0}
+  .fila{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}
+  .mini{background:var(--bg2);border:1px solid var(--border);color:var(--fg);border-radius:999px;padding:9px 16px;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block}
+  .mini:hover{border-color:var(--gold2)}
+  h2{font-family:Fraunces,serif;font-size:19px;color:var(--gold);margin-bottom:10px}
+  .hist{display:flex;flex-direction:column;gap:10px;max-height:520px;overflow-y:auto;padding-right:4px}
+  .hitem{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:12px}
+  .hitem .nom{font-size:13px;font-weight:600;word-break:break-word}
+  .vacio{color:var(--muted);font-size:14px;text-align:center;padding:28px 10px}
+  .ayuda{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.55}
+  optgroup{font-weight:700;color:var(--gold)} option{color:var(--fg);background:var(--bg2)}
+  /* Login */
+  #login{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px}
+  #login .box{background:var(--card);border:1px solid var(--border);border-radius:22px;padding:28px;max-width:380px;width:100%;text-align:center}
+  #login h1{font-size:28px;margin-bottom:6px}
+  #login p{color:var(--muted);font-size:14px;margin-bottom:18px}
+  #login input{text-align:center;font-size:18px;margin-bottom:12px}
+  #login .msg{color:var(--error);font-size:13px;font-weight:600;min-height:18px;margin-top:6px}
+  #app{display:none}
+</style>
+</head>
+<body>
+
+<!-- ===================== CANDADO ===================== -->
+<div id="login">
+  <div class="box">
+    <h1>✨ Voz-Texto</h1>
+    <p>Estudio de voz de la Fundación Social Mentes Brillantes. Escribe la clave de acceso.</p>
+    <input id="clave" type="password" placeholder="Clave de acceso" autocomplete="current-password">
+    <button class="big" id="entrar" style="margin-top:4px">Entrar</button>
+    <div class="msg" id="lmsg"></div>
+  </div>
+</div>
+
+<!-- ===================== APP ===================== -->
+<div id="app"><div class="wrap">
+  <header>
+    <h1>✨ Voz-Texto <small>Estudio de voz · Fundación Social Mentes Brillantes</small></h1>
+    <div class="pill">🔑 <b id="nllaves">…</b> voces gratis activas</div>
+  </header>
+
+  <!-- Mejorador con IA -->
+  <div class="card" id="mejorador" style="display:none;margin-bottom:16px;border-color:var(--gold2)">
+    <h2>✨ Paso previo (opcional): mejorar el texto con IA</h2>
+    <p class="ayuda" style="margin:0 0 12px">Pega tu texto <b>normal</b>, elige el sentimiento, y la IA le pone las acotaciones (<b>[susurrando]</b>, <b>[pausa larga]</b>, <b>[emocionada]</b>…) para que la voz lo <b>actúe</b>. No cambia tus palabras.</p>
+    <textarea id="mtexto" placeholder="Pega aquí tu texto normal, sin acotaciones…" style="min-height:110px"></textarea>
+    <div class="sec"><label>Sentimiento</label><div class="chips" id="mchips"></div></div>
+    <button class="big" id="mbtn">✨ Mejorar con IA</button>
+    <div class="estado" id="mestado"></div>
+    <div class="res" id="mres">
+      <label style="margin-bottom:8px">Texto con acotaciones (listo para la voz)</label>
+      <textarea id="mout" style="min-height:110px"></textarea>
+      <div class="fila"><button class="mini" id="musar">⬇️ Enviar a la voz</button><button class="mini" id="mcopiar">📋 Copiar</button></div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <label>1 · Escribe o pega tu texto</label>
+      <textarea id="texto" placeholder="Pega aquí el texto que quieres convertir en voz…"></textarea>
+      <div class="cnt"><span id="nchars">0</span> letras · <span id="npart">1</span> parte(s)</div>
+
+      <div class="sec"><label>2 · Elige la voz</label><select id="voz"></select></div>
+      <div class="sec"><label>3 · Elige la energía</label><div class="chips" id="chips"></div></div>
+      <div class="sec"><label>Instrucciones extra (opcional)</label><input id="extra" placeholder="Ej: más lento, con acento colombiano, énfasis en la palabra amor…"></div>
+      <div class="sec"><label>Nombre del audio (opcional)</label><input id="nombre" placeholder="Ej: meditación de la mañana"></div>
+
+      <button class="big" id="btn">🎙️ Generar audio</button>
+      <div class="bar" id="bar"><div id="barfill"></div></div>
+      <div class="estado" id="estado"></div>
+
+      <div class="res" id="res">
+        <p id="resinfo" style="font-size:13px;color:var(--muted);margin-bottom:8px"></p>
+        <audio id="player" controls></audio>
+        <div class="fila">
+          <a class="mini" id="descargar" download>⬇ Descargar MP3</a>
+          <button class="mini" onclick="setV(0.85)">🐢 Lenta</button>
+          <button class="mini" onclick="setV(1)">Normal</button>
+          <button class="mini" onclick="setV(1.15)">⚡ Rápida</button>
+        </div>
+      </div>
+
+      <p class="ayuda">💡 <b>Truco pro:</b> dentro del texto puedes poner acotaciones y la voz las actúa: <b>[susurrando]</b>, <b>[pausa larga]</b>, <b>[risas]</b>, <b>[emocionada]</b>…<br>🔑 Gratis con varias llaves rotadas. Los textos largos se hacen por partes automáticamente.</p>
+    </div>
+
+    <div class="card">
+      <h2>🗂️ Audios de esta sesión</h2>
+      <div class="hist" id="hist"><div class="vacio">Aquí aparecerán los audios que generes.</div></div>
+    </div>
+  </div>
+</div></div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let CLAVE = localStorage.getItem("vt_clave") || "";
+
+async function api(path, opts={}) {
+  opts.headers = Object.assign({ "x-clave": CLAVE, "Content-Type":"application/json" }, opts.headers||{});
+  return fetch(path, opts);
+}
+
+// ---------- LOGIN ----------
+async function intentarEntrar(clave) {
+  const r = await fetch("/api/login", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ clave }) });
+  const d = await r.json();
+  return d.ok;
+}
+async function abrirApp() {
+  $("login").style.display = "none";
+  $("app").style.display = "block";
+  iniciar();
+}
+$("entrar").onclick = async () => {
+  const c = $("clave").value.trim();
+  $("lmsg").textContent = "";
+  if (!c) { $("lmsg").textContent = "Escribe la clave"; return; }
+  $("entrar").disabled = true;
+  try {
+    if (await intentarEntrar(c)) { CLAVE = c; localStorage.setItem("vt_clave", c); abrirApp(); }
+    else $("lmsg").textContent = "Clave incorrecta";
+  } catch { $("lmsg").textContent = "Error de conexión"; }
+  finally { $("entrar").disabled = false; }
+};
+$("clave").addEventListener("keydown", (e) => { if (e.key === "Enter") $("entrar").click(); });
+// si ya había clave guardada, validarla en silencio
+(async () => { if (CLAVE && await intentarEntrar(CLAVE)) abrirApp(); })();
+
+// ---------- Datos ----------
+const VOCES = [
+  {id:"Sulafat",g:"F",d:"Cálida ⭐"},{id:"Vindemiatrix",g:"F",d:"Gentil y dulce"},{id:"Achernar",g:"F",d:"Suave"},
+  {id:"Aoede",g:"F",d:"Fresca y ligera"},{id:"Callirrhoe",g:"F",d:"Tranquila, relajada"},{id:"Leda",g:"F",d:"Juvenil"},
+  {id:"Kore",g:"F",d:"Firme y segura"},{id:"Zephyr",g:"F",d:"Brillante y alegre"},{id:"Autonoe",g:"F",d:"Luminosa"},
+  {id:"Despina",g:"F",d:"Sedosa"},{id:"Erinome",g:"F",d:"Clara"},{id:"Laomedeia",g:"F",d:"Animada"},
+  {id:"Pulcherrima",g:"F",d:"Expresiva, directa"},{id:"Gacrux",g:"F",d:"Madura"},
+  {id:"Charon",g:"M",d:"Serena e informativa ⭐"},{id:"Orus",g:"M",d:"Firme"},{id:"Enceladus",g:"M",d:"Suave, con aire"},
+  {id:"Iapetus",g:"M",d:"Claro"},{id:"Umbriel",g:"M",d:"Tranquilo"},{id:"Algieba",g:"M",d:"Sedoso"},
+  {id:"Algenib",g:"M",d:"Grave, rasposo"},{id:"Rasalgethi",g:"M",d:"Informativo"},{id:"Alnilam",g:"M",d:"Firme y fuerte"},
+  {id:"Schedar",g:"M",d:"Parejo, estable"},{id:"Achird",g:"M",d:"Amigable"},{id:"Zubenelgenubi",g:"M",d:"Casual, cercano"},
+  {id:"Sadaltager",g:"M",d:"Sabio, experto"},{id:"Sadachbia",g:"M",d:"Vivaz"},{id:"Puck",g:"M",d:"Alegre, juguetón"},{id:"Fenrir",g:"M",d:"Enérgico"},
+];
+const BASE = " Habla en español latino, con voz natural y humana, nunca robótica.";
+const ENERGIAS = [
+  {emoji:"🕊️",n:"Cálida y serena",i:"Lee como una guía espiritual de voz cálida, cercana y muy humana. Con emoción real: susurra con ternura en lo íntimo, ilumina la voz en la esperanza. Pausas naturales y respiros, sin prisa."},
+  {emoji:"🧘",n:"Meditación",i:"Voz muy suave, lenta y envolvente, casi susurrada, hipnótica y relajante. Pausas largas entre frases, como guiando una meditación."},
+  {emoji:"🌞",n:"Alegre y motivadora",i:"Voz luminosa, entusiasta y motivadora; se nota que sonríe al hablar. Energía positiva y contagiosa, ritmo ágil pero claro."},
+  {emoji:"🧚",n:"Cuentacuentos",i:"Narra como un cuentacuentos encantador para niños: juguetón, lleno de asombro, muy expresivo, cambiando el ritmo."},
+  {emoji:"🤫",n:"Susurro íntimo",i:"Susurra todo el texto, muy cerca del oído, delicado, íntimo y sereno."},
+  {emoji:"💧",n:"Conmovida",i:"Voz tierna y conmovida, que a ratos se quiebra levemente por la emoción; sentida y humana, con pausas de sentimiento."},
+  {emoji:"🔥",n:"Épica e inspiradora",i:"Narración épica, solemne y poderosa que crece en intensidad, como un gran discurso que enciende el corazón."},
+  {emoji:"🎙️",n:"Locución profesional",i:"Locución profesional, clara y elegante, como un anuncio institucional de alta calidad. Dicción impecable, ritmo seguro."},
+  {emoji:"🙏",n:"Oración devocional",i:"Lee como una oración devocional: reverente, íntima, llena de fe y de amor, pausada y profunda."},
+  {emoji:"✏️",n:"Solo mis instrucciones",i:""},
+];
+const SENTIMIENTOS = [
+  {emoji:"🌞",n:"Feliz",v:"alegre y feliz, con energía positiva y una sonrisa en la voz"},
+  {emoji:"💧",n:"Triste",v:"triste y conmovido, con voz suave y sentida, a ratos quebrada"},
+  {emoji:"🕊️",n:"Tierno",v:"tierno, cálido y cariñoso, muy humano y cercano"},
+  {emoji:"🧘",n:"Calmado",v:"muy calmado y sereno, pausado y relajante, casi meditativo"},
+  {emoji:"🔥",n:"Épico",v:"épico, inspirador y poderoso, que crece en intensidad"},
+  {emoji:"😮",n:"Suspenso",v:"con intriga y suspenso, misterioso, con pausas tensas"},
+  {emoji:"🧚",n:"Cuento",v:"juguetón y encantador, de cuentacuentos, lleno de asombro"},
+  {emoji:"🙏",n:"Devocional",v:"reverente, íntimo y lleno de fe, como una oración"},
+  {emoji:"🎙️",n:"Expresivo",v:"natural y expresivo, con buen ritmo y énfasis, sin exagerar"},
+];
+
+const MAX = 2500; // letras por parte
+function trocear(t){
+  const fr = t.match(/[^.!?…\n]+[.!?…]*\s*/g) ?? [t];
+  const out=[]; let a="";
+  for(const s of fr){ if(a && a.length+s.length>MAX){out.push(a.trim());a=s;} else a+=s; }
+  if(a.trim()) out.push(a.trim());
+  return out;
+}
+function b64aBytes(b64){ const bin=atob(b64); const u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i); return u; }
+
+let energia = ENERGIAS[0], msent = SENTIMIENTOS[0];
+const sesion = []; // audios de esta sesión (en memoria)
+
+function iniciar(){
+  // voces
+  const sel=$("voz"); const gf=document.createElement("optgroup"); gf.label="🌸 Voces femeninas"; const gm=document.createElement("optgroup"); gm.label="🌳 Voces masculinas";
+  for(const v of VOCES){ const o=document.createElement("option"); o.value=v.id; o.textContent=`${v.id} — ${v.d}`; (v.g==="F"?gf:gm).appendChild(o); }
+  sel.append(gf,gm);
+  // energías
+  const chips=$("chips");
+  ENERGIAS.forEach((e,i)=>{ const c=document.createElement("button"); c.type="button"; c.className="chip"+(i===0?" on":""); c.textContent=`${e.emoji} ${e.n}`; c.onclick=()=>{energia=e;chips.querySelectorAll(".chip").forEach(x=>x.classList.remove("on"));c.classList.add("on");}; chips.appendChild(c); });
+  // sentimientos
+  const mchips=$("mchips");
+  SENTIMIENTOS.forEach((s,i)=>{ const c=document.createElement("button"); c.type="button"; c.className="chip"+(i===0?" on":""); c.textContent=`${s.emoji} ${s.n}`; c.onclick=()=>{msent=s;mchips.querySelectorAll(".chip").forEach(x=>x.classList.remove("on"));c.classList.add("on");}; mchips.appendChild(c); });
+
+  $("texto").addEventListener("input",()=>{ const n=$("texto").value.length; $("nchars").textContent=n.toLocaleString("es"); $("npart").textContent=Math.max(1,Math.ceil(n/MAX)); });
+
+  api("/api/estado").then(r=>r.json()).then(d=>{
+    $("nllaves").textContent = d.claves;
+    $("mejorador").style.display = d.deepseek ? "block" : "none";
+  }).catch(()=>{});
+}
+
+function pintarSesion(){
+  const h=$("hist");
+  if(!sesion.length){ h.innerHTML='<div class="vacio">Aquí aparecerán los audios que generes.</div>'; return; }
+  h.innerHTML="";
+  sesion.slice().reverse().forEach(a=>{
+    const d=document.createElement("div"); d.className="hitem";
+    d.innerHTML=`<div class="nom">${a.nombre}</div><audio controls preload="none" src="${a.url}"></audio><div class="fila"><a class="mini" href="${a.url}" download="${a.nombre}.mp3">⬇ Descargar</a></div>`;
+    h.appendChild(d);
+  });
+}
+function setV(v){ $("player").playbackRate=v; }
+
+// ---------- Generar ----------
+$("btn") && ($("btn").onclick = async () => {
+  const texto=$("texto").value.trim(); const est=$("estado"); est.className="estado";
+  if(!texto){ est.className="estado err"; est.textContent="Escribe un texto primero 🙂"; return; }
+  const inst=(energia.i+" "+$("extra").value.trim()).trim()+BASE;
+  const partes=trocear(texto);
+  $("btn").disabled=true; $("res").className="res"; $("bar").className="bar on"; $("barfill").style.width="0%";
+  const trozos=[]; let seg=0;
+  try{
+    for(let i=0;i<partes.length;i++){
+      est.textContent = partes.length>1 ? `Generando parte ${i+1} de ${partes.length}… ⏳` : "Generando tu audio… ⏳";
+      const r=await api("/api/generar",{method:"POST",body:JSON.stringify({texto:partes[i],voz:$("voz").value,instrucciones:inst})});
+      const d=await r.json();
+      if(!r.ok||d.error) throw new Error(d.error||"Error");
+      trozos.push(b64aBytes(d.mp3)); seg+=d.segundos||0;
+      $("barfill").style.width = Math.round(((i+1)/partes.length)*100)+"%";
+    }
+    const blob=new Blob(trozos,{type:"audio/mpeg"}); const url=URL.createObjectURL(blob);
+    const nombre=($("nombre").value.trim()||texto.slice(0,40)).replace(/[^\wáéíóúñÁÉÍÓÚÑ \-]/g,"").trim()+" · "+$("voz").value;
+    est.textContent="✅ ¡Listo!"; $("bar").className="bar";
+    $("res").className="res on"; $("resinfo").textContent=`${Math.floor(seg/60)}m ${seg%60}s · ${(blob.size/1048576).toFixed(2)} MB`;
+    $("player").src=url; $("player").play().catch(()=>{});
+    $("descargar").href=url; $("descargar").download=nombre+".mp3";
+    sesion.push({nombre,url}); pintarSesion();
+  }catch(e){
+    $("bar").className="bar"; est.className="estado err";
+    est.textContent = String(e.message).includes("LIMITE") ? "🌙 Las llaves gratuitas llegaron a su límite de hoy. Mañana se renuevan." : "⚠️ "+e.message;
+  }finally{ $("btn").disabled=false; }
+});
+
+// ---------- Mejorar ----------
+$("mbtn") && ($("mbtn").onclick = async () => {
+  const texto=$("mtexto").value.trim(); const est=$("mestado"); est.className="estado";
+  if(!texto){ est.className="estado err"; est.textContent="Pega un texto primero 🙂"; return; }
+  $("mbtn").disabled=true; est.textContent="La IA está poniendo las acotaciones… ✨";
+  try{
+    const r=await api("/api/mejorar",{method:"POST",body:JSON.stringify({texto,estilo:msent.v})});
+    const d=await r.json(); if(!r.ok||d.error) throw new Error(d.error||"Error");
+    est.textContent="✅ ¡Listo! Revísalo y envíalo a la voz."; $("mres").className="res on"; $("mout").value=d.texto;
+  }catch(e){ est.className="estado err"; est.textContent="⚠️ "+e.message; }
+  finally{ $("mbtn").disabled=false; }
+});
+$("musar") && ($("musar").onclick=()=>{ $("texto").value=$("mout").value; $("texto").dispatchEvent(new Event("input")); $("texto").scrollIntoView({behavior:"smooth",block:"center"}); });
+$("mcopiar") && ($("mcopiar").onclick=()=>{ navigator.clipboard.writeText($("mout").value).catch(()=>{}); $("mcopiar").textContent="✓ Copiado"; setTimeout(()=>$("mcopiar").textContent="📋 Copiar",1500); });
+
+// ---------- PWA ----------
+if("serviceWorker" in navigator){ navigator.serviceWorker.register("/sw.js").catch(()=>{}); }
+</script>
+</body>
+</html>

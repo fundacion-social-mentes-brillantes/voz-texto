@@ -1,0 +1,20 @@
+# dependencias
+node_modules
+
+# ⚠️ CLAVES Y SECRETOS — NUNCA subir al repositorio
+claves.txt
+gemini-key.txt
+gemini-keys.txt
+deepseek-key.txt
+tts-key.txt
+clave-acceso.txt
+.env
+.env*.local
+
+# audios generados en local
+audios/
+
+# vercel / sistema
+.vercel
+*.log
+.DS_Store

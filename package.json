@@ -1,0 +1,9 @@
+{
+  "name": "voz-texto",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Estudio de voz local: convierte texto a audio con las voces expresivas de Gemini",
+  "type": "module",
+  "scripts": { "start": "node servidor.mjs" },
+  "dependencies": { "@breezystack/lamejs": "^1.2.7" }
+}
