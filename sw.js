@@ -1,6 +1,6 @@
 // Service worker mínimo: hace la app instalable y carga rápido la pantalla.
 // NO cachea las respuestas de audio ni las llamadas a /api (siempre en vivo).
-const CACHE = "voz-texto-v4";
+const CACHE = "voz-texto-v5";
 const SHELL = ["/", "/index.html", "/icono.svg", "/manifest.webmanifest"];
 
 self.addEventListener("install", (e) => {

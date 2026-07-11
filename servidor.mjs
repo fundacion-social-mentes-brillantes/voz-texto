@@ -27,14 +27,14 @@ const rutas = {
 
 const MIME = {
   ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css",
-  ".svg": "image/svg+xml", ".png": "image/png", ".ico": "image/x-icon",
+  ".svg": "image/svg+xml", ".png": "image/png", ".jpg": "image/jpeg", ".ico": "image/x-icon",
   ".webmanifest": "application/manifest+json", ".json": "application/json",
 };
 
 const server = http.createServer(async (req, res) => {
   const u = new URL(req.url, `http://localhost:${PORT}`);
   if (rutas[u.pathname]) return rutas[u.pathname](req, res);
-  const ESTATICOS = new Set(["/index.html", "/icono.svg", "/manifest.webmanifest", "/sw.js"]);
+  const ESTATICOS = new Set(["/index.html", "/icono.svg", "/manifest.webmanifest", "/sw.js", "/portada.jpg"]);
   const f = u.pathname === "/" ? "/index.html" : u.pathname;
   if (ESTATICOS.has(f)) {
     const fp = path.join(__dirname, f.slice(1));
