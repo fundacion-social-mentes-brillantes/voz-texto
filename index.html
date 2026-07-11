@@ -251,6 +251,7 @@
           <button class="mini" data-rate="0.85">🐢 Lenta</button>
           <button class="mini" data-rate="1">Normal</button>
           <button class="mini" data-rate="1.15">⚡ Rápida</button>
+          <button class="mini" id="nuevo">🧹 Nuevo audio</button>
         </div>
       </div>
 
@@ -404,6 +405,7 @@ function iniciar(){
   $("texto").addEventListener("input",()=>{ const n=$("texto").value.length; $("nchars").textContent=n.toLocaleString("es"); $("npart").textContent=Math.max(1,Math.ceil(n/MAX)); });
   document.querySelectorAll("[data-rate]").forEach(b=>b.addEventListener("click",()=>{ $("player").playbackRate=parseFloat(b.dataset.rate); }));
   $("btn").onclick = generar;
+  $("nuevo").onclick = limpiar;
   $("mbtn").onclick = mejorarIA;
   $("musar").onclick = ()=>{ $("texto").value=$("mout").value; $("texto").dispatchEvent(new Event("input")); $("texto").scrollIntoView({behavior:"smooth",block:"center"}); };
   $("mcopiar").onclick = ()=>{ navigator.clipboard.writeText($("mout").value).catch(()=>{}); $("mcopiar").textContent="✓ Copiado"; setTimeout(()=>$("mcopiar").textContent="📋 Copiar",1500); };
@@ -456,6 +458,17 @@ function pintarLista(items){
     };
     h.appendChild(div);
   }
+}
+
+// ---------- Limpiar (nuevo audio) ----------
+function limpiar(){
+  $("texto").value=""; $("nombre").value=""; $("extra").value="";
+  $("nchars").textContent="0"; $("npart").textContent="1";
+  $("res").className="res"; $("bar").className="bar"; $("barfill").style.width="0%";
+  $("estado").className="estado"; $("estado").textContent="";
+  $("mtexto").value=""; $("mout").value=""; $("mres").className="res"; $("mestado").textContent="";
+  $("texto").focus();
+  window.scrollTo({top:0,behavior:"smooth"});
 }
 
 // ---------- Generar ----------
