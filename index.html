@@ -137,7 +137,8 @@
         <p id="resinfo" style="font-size:13px;color:var(--muted);margin-bottom:8px"></p>
         <audio id="player" controls></audio>
         <div class="fila">
-          <a class="mini" id="descargar" download>⬇ Descargar MP3</a>
+          <a class="mini" id="descargarWav" download style="background:linear-gradient(120deg,var(--gold2),var(--gold));color:#123f38;border:none">⬇ Alta calidad (WAV)</a>
+          <a class="mini" id="descargar" download>⬇ MP3 (ligero)</a>
           <button class="mini" data-rate="0.85">🐢 Lenta</button>
           <button class="mini" data-rate="1">Normal</button>
           <button class="mini" data-rate="1.15">⚡ Rápida</button>
@@ -257,10 +258,30 @@ const SENTIMIENTOS = [
   {emoji:"🎙️",n:"Expresivo",v:"natural y expresivo, con buen ritmo y énfasis, sin exagerar"},
 ];
 
-const MAX = 2500;
+const MAX = 700; // trozos pequeños: el audio original (PCM) cabe en cada respuesta
 function trocear(t){ const fr=t.match(/[^.!?…\n]+[.!?…]*\s*/g)??[t]; const out=[]; let a=""; for(const s of fr){ if(a&&a.length+s.length>MAX){out.push(a.trim());a=s;}else a+=s; } if(a.trim())out.push(a.trim()); return out; }
 function b64aBytes(b64){ const bin=atob(b64); const u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i); return u; }
 function bytesAb64(u8){ let s=""; const C=0x8000; for(let i=0;i<u8.length;i+=C){ s+=String.fromCharCode.apply(null,u8.subarray(i,i+C)); } return btoa(s); }
+// Arma un WAV (alta calidad, sin comprimir) a partir del PCM.
+function pcmToWav(bytes, rate){
+  const n=bytes.length, buf=new ArrayBuffer(44+n), v=new DataView(buf);
+  const w=(o,s)=>{ for(let i=0;i<s.length;i++)v.setUint8(o+i,s.charCodeAt(i)); };
+  w(0,"RIFF"); v.setUint32(4,36+n,true); w(8,"WAVE"); w(12,"fmt "); v.setUint32(16,16,true);
+  v.setUint16(20,1,true); v.setUint16(22,1,true); v.setUint32(24,rate,true); v.setUint32(28,rate*2,true);
+  v.setUint16(32,2,true); v.setUint16(34,16,true); w(36,"data"); v.setUint32(40,n,true);
+  new Uint8Array(buf,44).set(bytes);
+  return new Blob([buf],{type:"audio/wav"});
+}
+// Codificador MP3 en el navegador (se carga solo la primera vez).
+let _lame=null;
+async function pcmToMp3(bytes, rate){
+  if(!_lame){ _lame=(await import("https://esm.sh/@breezystack/lamejs@1.2.7")).default; }
+  const p=new Int16Array(bytes.buffer, bytes.byteOffset, Math.floor(bytes.length/2));
+  const enc=new _lame.Mp3Encoder(1, rate, 80); const out=[];
+  for(let i=0;i<p.length;i+=1152){ const b=enc.encodeBuffer(p.subarray(i,i+1152)); if(b.length)out.push(new Uint8Array(b)); }
+  const e=enc.flush(); if(e.length)out.push(new Uint8Array(e));
+  return new Blob(out,{type:"audio/mpeg"});
+}
 
 let energia = ENERGIAS[0], msent = SENTIMIENTOS[0];
 
@@ -336,24 +357,34 @@ async function generar(){
   const inst=(energia.i+" "+$("extra").value.trim()).trim()+BASE;
   const partes=trocear(texto);
   $("btn").disabled=true; $("res").className="res"; $("bar").className="bar on"; $("barfill").style.width="0%";
-  const trozos=[]; let seg=0;
+  const pcmPartes=[]; let rate=24000, seg=0, total=0;
   try{
     for(let i=0;i<partes.length;i++){
       est.textContent = partes.length>1 ? `Generando parte ${i+1} de ${partes.length}… ⏳` : "Generando tu audio… ⏳";
       const r=await apiAuth("/api/generar",{texto:partes[i],voz:$("voz").value,instrucciones:inst});
       const d=await r.json(); if(!r.ok||d.error) throw new Error(d.error||"Error");
-      trozos.push(b64aBytes(d.mp3)); seg+=d.segundos||0;
-      $("barfill").style.width=Math.round(((i+1)/partes.length)*100)+"%";
+      const b=b64aBytes(d.pcm); pcmPartes.push(b); total+=b.length; rate=d.rate||rate; seg+=d.segundos||0;
+      $("barfill").style.width=Math.round(((i+1)/partes.length)*90)+"%";
     }
-    const blob=new Blob(trozos,{type:"audio/mpeg"}); const url=URL.createObjectURL(blob);
-    const nombre=($("nombre").value.trim()||texto.slice(0,40)).replace(/[^\wáéíóúñÁÉÍÓÚÑ \-]/g,"").trim();
+    const full=new Uint8Array(total); let off=0; for(const p of pcmPartes){ full.set(p,off); off+=p.length; }
+    const nombre=(($("nombre").value.trim()||texto.slice(0,40)).replace(/[^\wáéíóúñÁÉÍÓÚÑ \-]/g,"").trim())||"audio";
+    // WAV (alta calidad) — listo de inmediato para descargar al dispositivo
+    const wav=pcmToWav(full,rate); const wavUrl=URL.createObjectURL(wav);
+    $("descargarWav").href=wavUrl; $("descargarWav").download=nombre+".wav";
+    // MP3 (ligero) — para reproducir y guardar en Firebase
+    est.textContent="Preparando el audio… 🎧"; $("barfill").style.width="96%";
+    let mp3=null; try{ mp3=await pcmToMp3(full,rate); }catch(e){ mp3=null; }
+    const playUrl=URL.createObjectURL(mp3||wav);
     $("bar").className="bar"; $("res").className="res on";
-    $("resinfo").textContent=`${Math.floor(seg/60)}m ${seg%60}s · ${(blob.size/1048576).toFixed(2)} MB`;
-    $("player").src=url; $("player").play().catch(()=>{});
-    $("descargar").href=url; $("descargar").download=(nombre||"audio")+".mp3";
-    est.textContent="Guardando en tu Firebase… 💾";
-    try{ await guardar(blob,nombre,$("voz").value,seg); est.textContent="✅ ¡Listo y guardado!"; cargarLista(); }
-    catch(e){ est.className="estado err"; est.textContent="Audio listo, pero no se pudo guardar (¿Firestore creado?)."; }
+    $("resinfo").textContent=`${Math.floor(seg/60)}m ${seg%60}s · WAV ${(wav.size/1048576).toFixed(1)} MB${mp3?" · MP3 "+(mp3.size/1048576).toFixed(1)+" MB":""}`;
+    $("player").src=playUrl; $("player").play().catch(()=>{});
+    if(mp3){ $("descargar").style.display=""; $("descargar").href=URL.createObjectURL(mp3); $("descargar").download=nombre+".mp3"; }
+    else { $("descargar").style.display="none"; }
+    if(mp3){
+      est.textContent="Guardando en tu Firebase… 💾";
+      try{ await guardar(mp3,nombre,$("voz").value,seg); est.textContent="✅ ¡Listo! WAV para descargar · MP3 guardado en la nube."; cargarLista(); }
+      catch(e){ est.className="estado err"; est.textContent="Audio listo, pero no se pudo guardar (¿Firestore creado?)."; }
+    } else { est.textContent="✅ Audio listo. Descárgalo en WAV (alta calidad)."; }
   }catch(e){
     $("bar").className="bar"; est.className="estado err";
     est.textContent = String(e.message).includes("LIMITE") ? "🌙 Las llaves gratuitas llegaron a su límite de hoy." : "⚠️ "+e.message;

@@ -1,7 +1,9 @@
-import { readJson, sendJson, verifyUser, sintetizarChunk, pcmAmp3 } from "../lib/core.mjs";
+import { readJson, sendJson, verifyUser, sintetizarChunk } from "../lib/core.mjs";
 
 export const config = { maxDuration: 60 };
 
+// Devuelve el AUDIO ORIGINAL (PCM) de cada trozo. El navegador arma con él la
+// versión WAV (alta calidad, para descargar) y la MP3 (ligera, para guardar).
 export default async function handler(req, res) {
   if (req.method !== "POST") return sendJson(res, 405, { error: "método no permitido" });
   try { await verifyUser(req); } catch { return sendJson(res, 401, { error: "Inicia sesión con la cuenta autorizada." }); }
@@ -14,9 +16,8 @@ export default async function handler(req, res) {
       voz,
       instrucciones || "Lee con voz natural y expresiva, en español latino.",
     );
-    const mp3 = pcmAmp3(pcm, rate);
     const segundos = Math.round(pcm.length / 2 / rate);
-    sendJson(res, 200, { ok: true, mp3: mp3.toString("base64"), segundos });
+    sendJson(res, 200, { ok: true, pcm: pcm.toString("base64"), rate, segundos });
   } catch (e) {
     sendJson(res, 500, { error: String(e.message || e) });
   }
