@@ -18,11 +18,9 @@ if (!process.env.GEMINI_KEYS) {
   if (k) process.env.GEMINI_KEYS = k;
 }
 if (!process.env.DEEPSEEK_KEY) process.env.DEEPSEEK_KEY = leer("deepseek-key.txt");
-if (!process.env.APP_PASSWORD) process.env.APP_PASSWORD = (leer("clave-acceso.txt").trim() || "voz2026");
 
 const rutas = {
   "/api/estado": (await import("./api/estado.js")).default,
-  "/api/login": (await import("./api/login.js")).default,
   "/api/generar": (await import("./api/generar.js")).default,
   "/api/mejorar": (await import("./api/mejorar.js")).default,
 };
@@ -51,7 +49,7 @@ const server = http.createServer(async (req, res) => {
 
 server.listen(PORT, () => {
   console.log("\n  ✨ VOZ-TEXTO (local) en  http://localhost:" + PORT);
-  console.log("  Clave de acceso: " + process.env.APP_PASSWORD);
+  console.log("  Ingresa con Google (cuenta de la fundación).");
   console.log("  Deja esta ventana abierta mientras lo usas.\n");
   if (process.platform === "win32") exec(`start "" http://localhost:${PORT}`);
 });

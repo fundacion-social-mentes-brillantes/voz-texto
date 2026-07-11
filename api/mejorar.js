@@ -1,10 +1,10 @@
-import { readJson, sendJson, checkAuth, mejorar } from "../lib/core.mjs";
+import { readJson, sendJson, verifyUser, mejorar } from "../lib/core.mjs";
 
 export const config = { maxDuration: 60 };
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return sendJson(res, 405, { error: "método no permitido" });
-  if (!checkAuth(req)) return sendJson(res, 401, { error: "clave incorrecta" });
+  try { await verifyUser(req); } catch { return sendJson(res, 401, { error: "Inicia sesión con la cuenta autorizada." }); }
   try {
     const { texto, estilo } = await readJson(req);
     if (!texto || !texto.trim()) return sendJson(res, 400, { error: "Escribe un texto." });

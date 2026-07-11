@@ -34,8 +34,10 @@
   header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px}
   h1{font-family:Fraunces,serif;font-size:clamp(24px,5vw,34px);color:var(--gold);line-height:1.1}
   h1 small{display:block;font-family:Inter;font-size:12px;font-weight:500;color:var(--muted);margin-top:5px}
-  .pill{background:var(--card);border:1px solid var(--border);border-radius:999px;padding:8px 15px;font-size:13px;font-weight:600;color:var(--muted)}
+  .pill{background:var(--card);border:1px solid var(--border);border-radius:999px;padding:8px 15px;font-size:13px;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:10px}
   .pill b{color:var(--gold)}
+  .salir{background:none;border:1px solid var(--border);color:var(--muted);border-radius:999px;padding:4px 12px;font-size:12px;font-weight:600;cursor:pointer}
+  .salir:hover{color:var(--fg)}
   .grid{display:grid;grid-template-columns:1.15fr .85fr;gap:16px}
   @media(max-width:820px){.grid{grid-template-columns:1fr}}
   .card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:18px}
@@ -61,31 +63,35 @@
   .mini{background:var(--bg2);border:1px solid var(--border);color:var(--fg);border-radius:999px;padding:9px 16px;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block}
   .mini:hover{border-color:var(--gold2)}
   h2{font-family:Fraunces,serif;font-size:19px;color:var(--gold);margin-bottom:10px}
-  .hist{display:flex;flex-direction:column;gap:10px;max-height:520px;overflow-y:auto;padding-right:4px}
+  .hist{display:flex;flex-direction:column;gap:10px;max-height:560px;overflow-y:auto;padding-right:4px}
   .hitem{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:12px}
   .hitem .nom{font-size:13px;font-weight:600;word-break:break-word}
+  .hitem .meta{font-size:11px;color:var(--muted);margin:3px 0 7px}
   .vacio{color:var(--muted);font-size:14px;text-align:center;padding:28px 10px}
   .ayuda{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.55}
   optgroup{font-weight:700;color:var(--gold)} option{color:var(--fg);background:var(--bg2)}
   /* Login */
   #login{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px}
-  #login .box{background:var(--card);border:1px solid var(--border);border-radius:22px;padding:28px;max-width:380px;width:100%;text-align:center}
-  #login h1{font-size:28px;margin-bottom:6px}
-  #login p{color:var(--muted);font-size:14px;margin-bottom:18px}
-  #login input{text-align:center;font-size:18px;margin-bottom:12px}
-  #login .msg{color:var(--error);font-size:13px;font-weight:600;min-height:18px;margin-top:6px}
+  #login .box{background:var(--card);border:1px solid var(--border);border-radius:22px;padding:30px;max-width:400px;width:100%;text-align:center}
+  #login h1{font-size:30px;margin-bottom:8px}
+  #login p{color:var(--muted);font-size:14px;margin-bottom:22px;line-height:1.5}
+  #gbtn{display:inline-flex;align-items:center;gap:12px;background:#fff;color:#222;border:none;border-radius:999px;padding:13px 22px;font-size:15px;font-weight:700;cursor:pointer;font-family:Inter}
+  #gbtn:hover{filter:brightness(.97)}
+  #login .msg{color:var(--error);font-size:13px;font-weight:600;min-height:18px;margin-top:16px}
   #app{display:none}
 </style>
 </head>
 <body>
 
-<!-- ===================== CANDADO ===================== -->
+<!-- ===================== LOGIN CON GOOGLE ===================== -->
 <div id="login">
   <div class="box">
     <h1>✨ Voz-Texto</h1>
-    <p>Estudio de voz de la Fundación Social Mentes Brillantes. Escribe la clave de acceso.</p>
-    <input id="clave" type="password" placeholder="Clave de acceso" autocomplete="current-password">
-    <button class="big" id="entrar" style="margin-top:4px">Entrar</button>
+    <p>Estudio de voz de la Fundación Social Mentes Brillantes.<br>Ingresa con la cuenta autorizada.</p>
+    <button id="gbtn">
+      <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.9 2.4 30.3 0 24 0 14.6 0 6.4 5.4 2.5 13.3l7.9 6.1C12.2 13.2 17.6 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.1 5.3-4.6 7l7.1 5.5c4.2-3.9 6.6-9.6 6.6-16z"/><path fill="#FBBC05" d="M10.4 28.6c-.5-1.4-.8-2.9-.8-4.6s.3-3.2.8-4.6l-7.9-6.1C.9 16.1 0 19.9 0 24s.9 7.9 2.5 11.3l7.9-6.7z"/><path fill="#34A853" d="M24 48c6.3 0 11.6-2.1 15.5-5.6l-7.1-5.5c-2 1.4-4.6 2.2-8.4 2.2-6.4 0-11.8-3.7-13.6-9.4l-7.9 6.7C6.4 42.6 14.6 48 24 48z"/></svg>
+      Entrar con Google
+    </button>
     <div class="msg" id="lmsg"></div>
   </div>
 </div>
@@ -94,7 +100,7 @@
 <div id="app"><div class="wrap">
   <header>
     <h1>✨ Voz-Texto <small>Estudio de voz · Fundación Social Mentes Brillantes</small></h1>
-    <div class="pill">🔑 <b id="nllaves">…</b> voces gratis activas</div>
+    <div class="pill">🔑 <b id="nllaves">…</b> voces · <span id="micorreo"></span> <button class="salir" id="salir">Salir</button></div>
   </header>
 
   <!-- Mejorador con IA -->
@@ -132,58 +138,88 @@
         <audio id="player" controls></audio>
         <div class="fila">
           <a class="mini" id="descargar" download>⬇ Descargar MP3</a>
-          <button class="mini" onclick="setV(0.85)">🐢 Lenta</button>
-          <button class="mini" onclick="setV(1)">Normal</button>
-          <button class="mini" onclick="setV(1.15)">⚡ Rápida</button>
+          <button class="mini" data-rate="0.85">🐢 Lenta</button>
+          <button class="mini" data-rate="1">Normal</button>
+          <button class="mini" data-rate="1.15">⚡ Rápida</button>
         </div>
       </div>
 
-      <p class="ayuda">💡 <b>Truco pro:</b> dentro del texto puedes poner acotaciones y la voz las actúa: <b>[susurrando]</b>, <b>[pausa larga]</b>, <b>[risas]</b>, <b>[emocionada]</b>…<br>🔑 Gratis con varias llaves rotadas. Los textos largos se hacen por partes automáticamente.</p>
+      <p class="ayuda">💡 <b>Truco pro:</b> dentro del texto puedes poner acotaciones y la voz las actúa: <b>[susurrando]</b>, <b>[pausa larga]</b>, <b>[risas]</b>, <b>[emocionada]</b>…<br>Los textos largos se hacen por partes automáticamente. Cada audio se <b>guarda solo</b> en tu Firebase.</p>
     </div>
 
     <div class="card">
-      <h2>🗂️ Audios de esta sesión</h2>
-      <div class="hist" id="hist"><div class="vacio">Aquí aparecerán los audios que generes.</div></div>
+      <h2>🗂️ Tus audios guardados</h2>
+      <div class="hist" id="hist"><div class="vacio">Cargando…</div></div>
     </div>
   </div>
 </div></div>
 
-<script>
-const $ = (id) => document.getElementById(id);
-let CLAVE = localStorage.getItem("vt_clave") || "";
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, getDocs, query, where, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-async function api(path, opts={}) {
-  opts.headers = Object.assign({ "x-clave": CLAVE, "Content-Type":"application/json" }, opts.headers||{});
-  return fetch(path, opts);
-}
+const firebaseConfig = {
+  apiKey: "AIzaSyC7aAZoAewhGN1YyH93_c1_eAfIRjoFbfc",
+  authDomain: "voz-texto-99f54.firebaseapp.com",
+  projectId: "voz-texto-99f54",
+  storageBucket: "voz-texto-99f54.firebasestorage.app",
+  messagingSenderId: "110878230207",
+  appId: "1:110878230207:web:424c5f73b8d1fbaad5280a"
+};
+const PERMITIDOS = ["fundacionsocial@gimnasioemocionalmb.com"];
+
+const fbApp = initializeApp(firebaseConfig);
+const auth = getAuth(fbApp);
+const db = getFirestore(fbApp);
+const provider = new GoogleAuthProvider();
+provider.setCustomParameters({ prompt: "select_account" });
+
+const $ = (id) => document.getElementById(id);
+let user = null;
 
 // ---------- LOGIN ----------
-async function intentarEntrar(clave) {
-  const r = await fetch("/api/login", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ clave }) });
-  const d = await r.json();
-  return d.ok;
-}
-async function abrirApp() {
-  $("login").style.display = "none";
-  $("app").style.display = "block";
-  iniciar();
-}
-$("entrar").onclick = async () => {
-  const c = $("clave").value.trim();
+$("gbtn").onclick = async () => {
   $("lmsg").textContent = "";
-  if (!c) { $("lmsg").textContent = "Escribe la clave"; return; }
-  $("entrar").disabled = true;
-  try {
-    if (await intentarEntrar(c)) { CLAVE = c; localStorage.setItem("vt_clave", c); abrirApp(); }
-    else $("lmsg").textContent = "Clave incorrecta";
-  } catch { $("lmsg").textContent = "Error de conexión"; }
-  finally { $("entrar").disabled = false; }
+  try { await signInWithPopup(auth, provider); }
+  catch (e) { $("lmsg").textContent = "No se pudo abrir el ingreso. Permite las ventanas emergentes e inténtalo otra vez."; }
 };
-$("clave").addEventListener("keydown", (e) => { if (e.key === "Enter") $("entrar").click(); });
-// si ya había clave guardada, validarla en silencio
-(async () => { if (CLAVE && await intentarEntrar(CLAVE)) abrirApp(); })();
+$("salir").onclick = () => signOut(auth);
 
-// ---------- Datos ----------
+onAuthStateChanged(auth, (u) => {
+  if (u && PERMITIDOS.includes((u.email || "").toLowerCase())) {
+    user = u;
+    $("login").style.display = "none";
+    $("app").style.display = "block";
+    $("micorreo").textContent = u.email;
+    if (!window._iniciado) { window._iniciado = true; iniciar(); }
+    cargarEstado();
+    cargarLista();
+  } else if (u) {
+    // cuenta no autorizada
+    signOut(auth);
+    $("lmsg").textContent = "Esa cuenta no está autorizada. Ingresa con la cuenta de la fundación.";
+  } else {
+    user = null;
+    $("login").style.display = "flex";
+    $("app").style.display = "none";
+  }
+});
+
+async function apiAuth(path, body) {
+  const token = await auth.currentUser.getIdToken();
+  return fetch(path, { method: "POST", headers: { Authorization: "Bearer " + token, "Content-Type": "application/json" }, body: JSON.stringify(body) });
+}
+async function cargarEstado() {
+  try {
+    const token = await auth.currentUser.getIdToken();
+    const d = await (await fetch("/api/estado", { headers: { Authorization: "Bearer " + token } })).json();
+    $("nllaves").textContent = d.claves ?? "?";
+    $("mejorador").style.display = d.deepseek ? "block" : "none";
+  } catch {}
+}
+
+// ---------- Datos de voces / energías / sentimientos ----------
 const VOCES = [
   {id:"Sulafat",g:"F",d:"Cálida ⭐"},{id:"Vindemiatrix",g:"F",d:"Gentil y dulce"},{id:"Achernar",g:"F",d:"Suave"},
   {id:"Aoede",g:"F",d:"Fresca y ligera"},{id:"Callirrhoe",g:"F",d:"Tranquila, relajada"},{id:"Leda",g:"F",d:"Juvenil"},
@@ -221,53 +257,80 @@ const SENTIMIENTOS = [
   {emoji:"🎙️",n:"Expresivo",v:"natural y expresivo, con buen ritmo y énfasis, sin exagerar"},
 ];
 
-const MAX = 2500; // letras por parte
-function trocear(t){
-  const fr = t.match(/[^.!?…\n]+[.!?…]*\s*/g) ?? [t];
-  const out=[]; let a="";
-  for(const s of fr){ if(a && a.length+s.length>MAX){out.push(a.trim());a=s;} else a+=s; }
-  if(a.trim()) out.push(a.trim());
-  return out;
-}
+const MAX = 2500;
+function trocear(t){ const fr=t.match(/[^.!?…\n]+[.!?…]*\s*/g)??[t]; const out=[]; let a=""; for(const s of fr){ if(a&&a.length+s.length>MAX){out.push(a.trim());a=s;}else a+=s; } if(a.trim())out.push(a.trim()); return out; }
 function b64aBytes(b64){ const bin=atob(b64); const u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i); return u; }
+function bytesAb64(u8){ let s=""; const C=0x8000; for(let i=0;i<u8.length;i+=C){ s+=String.fromCharCode.apply(null,u8.subarray(i,i+C)); } return btoa(s); }
 
 let energia = ENERGIAS[0], msent = SENTIMIENTOS[0];
-const sesion = []; // audios de esta sesión (en memoria)
 
 function iniciar(){
-  // voces
   const sel=$("voz"); const gf=document.createElement("optgroup"); gf.label="🌸 Voces femeninas"; const gm=document.createElement("optgroup"); gm.label="🌳 Voces masculinas";
   for(const v of VOCES){ const o=document.createElement("option"); o.value=v.id; o.textContent=`${v.id} — ${v.d}`; (v.g==="F"?gf:gm).appendChild(o); }
   sel.append(gf,gm);
-  // energías
   const chips=$("chips");
   ENERGIAS.forEach((e,i)=>{ const c=document.createElement("button"); c.type="button"; c.className="chip"+(i===0?" on":""); c.textContent=`${e.emoji} ${e.n}`; c.onclick=()=>{energia=e;chips.querySelectorAll(".chip").forEach(x=>x.classList.remove("on"));c.classList.add("on");}; chips.appendChild(c); });
-  // sentimientos
   const mchips=$("mchips");
   SENTIMIENTOS.forEach((s,i)=>{ const c=document.createElement("button"); c.type="button"; c.className="chip"+(i===0?" on":""); c.textContent=`${s.emoji} ${s.n}`; c.onclick=()=>{msent=s;mchips.querySelectorAll(".chip").forEach(x=>x.classList.remove("on"));c.classList.add("on");}; mchips.appendChild(c); });
-
   $("texto").addEventListener("input",()=>{ const n=$("texto").value.length; $("nchars").textContent=n.toLocaleString("es"); $("npart").textContent=Math.max(1,Math.ceil(n/MAX)); });
-
-  api("/api/estado").then(r=>r.json()).then(d=>{
-    $("nllaves").textContent = d.claves;
-    $("mejorador").style.display = d.deepseek ? "block" : "none";
-  }).catch(()=>{});
+  document.querySelectorAll("[data-rate]").forEach(b=>b.addEventListener("click",()=>{ $("player").playbackRate=parseFloat(b.dataset.rate); }));
+  $("btn").onclick = generar;
+  $("mbtn").onclick = mejorarIA;
+  $("musar").onclick = ()=>{ $("texto").value=$("mout").value; $("texto").dispatchEvent(new Event("input")); $("texto").scrollIntoView({behavior:"smooth",block:"center"}); };
+  $("mcopiar").onclick = ()=>{ navigator.clipboard.writeText($("mout").value).catch(()=>{}); $("mcopiar").textContent="✓ Copiado"; setTimeout(()=>$("mcopiar").textContent="📋 Copiar",1500); };
 }
 
-function pintarSesion(){
+// ---------- Firestore: guardar / listar / cargar / borrar ----------
+async function guardar(blob, nombre, voz, segundos){
+  const b64 = bytesAb64(new Uint8Array(await blob.arrayBuffer()));
+  const CH = 800000, n = Math.ceil(b64.length/CH);
+  const parent = await addDoc(collection(db,"audios"), { owner:user.uid, email:user.email, nombre, voz, segundos, mb:+(blob.size/1048576).toFixed(2), chunks:n, createdAt:Date.now() });
+  for(let i=0;i<n;i++){ await addDoc(collection(db,"audios",parent.id,"partes"), { i, d: b64.slice(i*CH,(i+1)*CH) }); }
+}
+async function cargarLista(){
+  try{
+    const snap = await getDocs(query(collection(db,"audios"), where("owner","==",user.uid)));
+    const items = snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+    pintarLista(items);
+  }catch(e){ $("hist").innerHTML='<div class="vacio">No se pudo leer la lista.<br>¿Ya creaste la base de datos Firestore?</div>'; }
+}
+function pintarLista(items){
   const h=$("hist");
-  if(!sesion.length){ h.innerHTML='<div class="vacio">Aquí aparecerán los audios que generes.</div>'; return; }
+  if(!items.length){ h.innerHTML='<div class="vacio">Aún no hay audios. Genera el primero 🎙️</div>'; return; }
   h.innerHTML="";
-  sesion.slice().reverse().forEach(a=>{
-    const d=document.createElement("div"); d.className="hitem";
-    d.innerHTML=`<div class="nom">${a.nombre}</div><audio controls preload="none" src="${a.url}"></audio><div class="fila"><a class="mini" href="${a.url}" download="${a.nombre}.mp3">⬇ Descargar</a></div>`;
-    h.appendChild(d);
-  });
+  for(const a of items){
+    const div=document.createElement("div"); div.className="hitem";
+    const seg=a.segundos||0;
+    div.innerHTML=`<div class="nom">${(a.nombre||"audio")} <span style="color:var(--muted);font-weight:500">· ${a.voz||""}</span></div>
+      <div class="meta">${Math.floor(seg/60)}m ${seg%60}s · ${a.mb||"?"} MB</div>
+      <div class="fila"><button class="mini cargar">▶ Reproducir</button><button class="mini borrar">🗑</button></div>`;
+    div.querySelector(".cargar").onclick = async (ev)=>{
+      const b=ev.target; b.textContent="Cargando…"; b.disabled=true;
+      try{
+        const snap=await getDocs(collection(db,"audios",a.id,"partes"));
+        const parts=snap.docs.map(d=>d.data()).sort((x,y)=>x.i-y.i);
+        const blob=new Blob([b64aBytes(parts.map(p=>p.d).join(""))],{type:"audio/mpeg"});
+        const url=URL.createObjectURL(blob);
+        const au=document.createElement("audio"); au.controls=true; au.src=url;
+        const dl=document.createElement("a"); dl.className="mini"; dl.href=url; dl.download=(a.nombre||"audio")+".mp3"; dl.textContent="⬇ Descargar";
+        b.parentElement.replaceWith(au); au.after(dl); au.play().catch(()=>{});
+      }catch(e){ b.textContent="Error"; }
+    };
+    div.querySelector(".borrar").onclick = async ()=>{
+      if(!confirm("¿Borrar este audio?")) return;
+      try{
+        const snap=await getDocs(collection(db,"audios",a.id,"partes"));
+        for(const d of snap.docs) await deleteDoc(doc(db,"audios",a.id,"partes",d.id));
+        await deleteDoc(doc(db,"audios",a.id));
+        cargarLista();
+      }catch(e){ alert("No se pudo borrar."); }
+    };
+    h.appendChild(div);
+  }
 }
-function setV(v){ $("player").playbackRate=v; }
 
 // ---------- Generar ----------
-$("btn") && ($("btn").onclick = async () => {
+async function generar(){
   const texto=$("texto").value.trim(); const est=$("estado"); est.className="estado";
   if(!texto){ est.className="estado err"; est.textContent="Escribe un texto primero 🙂"; return; }
   const inst=(energia.i+" "+$("extra").value.trim()).trim()+BASE;
@@ -277,41 +340,39 @@ $("btn") && ($("btn").onclick = async () => {
   try{
     for(let i=0;i<partes.length;i++){
       est.textContent = partes.length>1 ? `Generando parte ${i+1} de ${partes.length}… ⏳` : "Generando tu audio… ⏳";
-      const r=await api("/api/generar",{method:"POST",body:JSON.stringify({texto:partes[i],voz:$("voz").value,instrucciones:inst})});
-      const d=await r.json();
-      if(!r.ok||d.error) throw new Error(d.error||"Error");
+      const r=await apiAuth("/api/generar",{texto:partes[i],voz:$("voz").value,instrucciones:inst});
+      const d=await r.json(); if(!r.ok||d.error) throw new Error(d.error||"Error");
       trozos.push(b64aBytes(d.mp3)); seg+=d.segundos||0;
-      $("barfill").style.width = Math.round(((i+1)/partes.length)*100)+"%";
+      $("barfill").style.width=Math.round(((i+1)/partes.length)*100)+"%";
     }
     const blob=new Blob(trozos,{type:"audio/mpeg"}); const url=URL.createObjectURL(blob);
-    const nombre=($("nombre").value.trim()||texto.slice(0,40)).replace(/[^\wáéíóúñÁÉÍÓÚÑ \-]/g,"").trim()+" · "+$("voz").value;
-    est.textContent="✅ ¡Listo!"; $("bar").className="bar";
-    $("res").className="res on"; $("resinfo").textContent=`${Math.floor(seg/60)}m ${seg%60}s · ${(blob.size/1048576).toFixed(2)} MB`;
+    const nombre=($("nombre").value.trim()||texto.slice(0,40)).replace(/[^\wáéíóúñÁÉÍÓÚÑ \-]/g,"").trim();
+    $("bar").className="bar"; $("res").className="res on";
+    $("resinfo").textContent=`${Math.floor(seg/60)}m ${seg%60}s · ${(blob.size/1048576).toFixed(2)} MB`;
     $("player").src=url; $("player").play().catch(()=>{});
-    $("descargar").href=url; $("descargar").download=nombre+".mp3";
-    sesion.push({nombre,url}); pintarSesion();
+    $("descargar").href=url; $("descargar").download=(nombre||"audio")+".mp3";
+    est.textContent="Guardando en tu Firebase… 💾";
+    try{ await guardar(blob,nombre,$("voz").value,seg); est.textContent="✅ ¡Listo y guardado!"; cargarLista(); }
+    catch(e){ est.className="estado err"; est.textContent="Audio listo, pero no se pudo guardar (¿Firestore creado?)."; }
   }catch(e){
     $("bar").className="bar"; est.className="estado err";
-    est.textContent = String(e.message).includes("LIMITE") ? "🌙 Las llaves gratuitas llegaron a su límite de hoy. Mañana se renuevan." : "⚠️ "+e.message;
+    est.textContent = String(e.message).includes("LIMITE") ? "🌙 Las llaves gratuitas llegaron a su límite de hoy." : "⚠️ "+e.message;
   }finally{ $("btn").disabled=false; }
-});
+}
 
 // ---------- Mejorar ----------
-$("mbtn") && ($("mbtn").onclick = async () => {
+async function mejorarIA(){
   const texto=$("mtexto").value.trim(); const est=$("mestado"); est.className="estado";
   if(!texto){ est.className="estado err"; est.textContent="Pega un texto primero 🙂"; return; }
   $("mbtn").disabled=true; est.textContent="La IA está poniendo las acotaciones… ✨";
   try{
-    const r=await api("/api/mejorar",{method:"POST",body:JSON.stringify({texto,estilo:msent.v})});
+    const r=await apiAuth("/api/mejorar",{texto,estilo:msent.v});
     const d=await r.json(); if(!r.ok||d.error) throw new Error(d.error||"Error");
     est.textContent="✅ ¡Listo! Revísalo y envíalo a la voz."; $("mres").className="res on"; $("mout").value=d.texto;
   }catch(e){ est.className="estado err"; est.textContent="⚠️ "+e.message; }
   finally{ $("mbtn").disabled=false; }
-});
-$("musar") && ($("musar").onclick=()=>{ $("texto").value=$("mout").value; $("texto").dispatchEvent(new Event("input")); $("texto").scrollIntoView({behavior:"smooth",block:"center"}); });
-$("mcopiar") && ($("mcopiar").onclick=()=>{ navigator.clipboard.writeText($("mout").value).catch(()=>{}); $("mcopiar").textContent="✓ Copiado"; setTimeout(()=>$("mcopiar").textContent="📋 Copiar",1500); });
+}
 
-// ---------- PWA ----------
 if("serviceWorker" in navigator){ navigator.serviceWorker.register("/sw.js").catch(()=>{}); }
 </script>
 </body>

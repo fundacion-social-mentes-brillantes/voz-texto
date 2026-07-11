@@ -1,0 +1,22 @@
+rules_version = '2';
+
+// Reglas de seguridad de Voz-Texto.
+// Solo la cuenta de la fundación (con correo verificado) puede leer y escribir
+// los audios. Cualquier otra cuenta queda bloqueada.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function esFundacion() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email == 'fundacionsocial@gimnasioemocionalmb.com';
+    }
+
+    match /audios/{id} {
+      allow read, write: if esFundacion();
+      match /partes/{parte} {
+        allow read, write: if esFundacion();
+      }
+    }
+  }
+}
