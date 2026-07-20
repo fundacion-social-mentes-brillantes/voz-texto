@@ -350,20 +350,24 @@ const VOCES = [
 // Motor Azure: voces con nombre y acento reales de Azure. Las HD (Dragon HD)
 // son la generación 2026: detectan la emoción del texto y la actúan solas.
 const VOCES_AZURE = [
-  {id:"es-MX-Valeria:MAI-Voice-2",g:"F",n:"Valeria",d:"Mexicana · HD ⭐"},
-  {id:"es-CO-SalomeNeural",g:"F",n:"Salomé",d:"Colombiana"},
-  {id:"es-MX-DaliaNeural",g:"F",n:"Dalia",d:"Mexicana"},
-  {id:"es-AR-ElenaNeural",g:"F",n:"Elena",d:"Argentina"},
-  {id:"es-US-PalomaNeural",g:"F",n:"Paloma",d:"Latina (EE. UU.)"},
-  {id:"es-MX-Ximena:DragonHDLatestNeural",g:"F",n:"Ximena",d:"HD · dejo de España"},
-  {id:"es-ES-ElviraNeural",g:"F",n:"Elvira",d:"España"},
-  {id:"es-MX-Alejo:MAI-Voice-2",g:"M",n:"Alejo",d:"Mexicano · HD ⭐"},
-  {id:"es-CO-GonzaloNeural",g:"M",n:"Gonzalo",d:"Colombiano"},
-  {id:"es-MX-JorgeNeural",g:"M",n:"Jorge",d:"Mexicano"},
-  {id:"es-AR-TomasNeural",g:"M",n:"Tomás",d:"Argentino"},
-  {id:"es-US-AlonsoNeural",g:"M",n:"Alonso",d:"Latino (EE. UU.)"},
-  {id:"es-MX-Tristan:DragonHDLatestNeural",g:"M",n:"Tristán",d:"HD · dejo de España"},
-  {id:"es-ES-AlvaroNeural",g:"M",n:"Álvaro",d:"España"},
+  // HD = generación nueva (más natural). Sin HD = estándar (correcta, más plana).
+  // Los acentos descritos son los reales, verificados a oído.
+  {id:"es-MX-Valeria:MAI-Voice-2",g:"F",n:"Valeria",d:"Mexicana de verdad · HD ⭐"},
+  {id:"es-CO-SalomeNeural",g:"F",n:"Salomé",d:"Colombiana · estándar"},
+  {id:"es-MX-DaliaNeural",g:"F",n:"Dalia",d:"Mexicana · estándar, alegre"},
+  {id:"es-AR-ElenaNeural",g:"F",n:"Elena",d:"Argentina · estándar, clara"},
+  {id:"es-US-PalomaNeural",g:"F",n:"Paloma",d:"Latina (EE. UU.) · estándar"},
+  {id:"en-US-Dana:DragonHDOmniLatestNeural",g:"F",n:"Dana",d:"HD · multilingüe (nativa en inglés)"},
+  {id:"es-MX-Ximena:DragonHDLatestNeural",g:"F",n:"Ximena",d:"HD · suena a España"},
+  {id:"es-ES-ElviraNeural",g:"F",n:"Elvira",d:"España · estándar, clara"},
+  {id:"es-MX-Alejo:MAI-Voice-2",g:"M",n:"Alejo",d:"Mexicano de verdad · HD ⭐"},
+  {id:"es-CO-GonzaloNeural",g:"M",n:"Gonzalo",d:"Colombiano · estándar"},
+  {id:"es-MX-JorgeNeural",g:"M",n:"Jorge",d:"Mexicano · estándar, grave y seguro"},
+  {id:"es-AR-TomasNeural",g:"M",n:"Tomás",d:"Argentino · estándar"},
+  {id:"es-US-AlonsoNeural",g:"M",n:"Alonso",d:"Latino (EE. UU.) · estándar"},
+  {id:"en-US-Andrew:DragonHDOmniLatestNeural",g:"M",n:"Andrew",d:"HD · multilingüe (nativo en inglés)"},
+  {id:"es-MX-Tristan:DragonHDLatestNeural",g:"M",n:"Tristán",d:"HD · suena a España"},
+  {id:"es-ES-AlvaroNeural",g:"M",n:"Álvaro",d:"España · estándar, seguro"},
 ];
 const MOTORES = [
   {id:"gemini", etiqueta:"🌈 Google Gemini · gratis"},
