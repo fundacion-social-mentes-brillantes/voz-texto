@@ -233,9 +233,13 @@
       <textarea id="texto" placeholder="Pega aquí el texto que quieres convertir en voz…"></textarea>
       <div class="cnt"><span id="nchars">0</span> letras · <span id="npart">1</span> parte(s)</div>
 
-      <div class="sec"><label>2 · Elige la voz</label><select id="voz"></select></div>
-      <div class="sec"><label>3 · Elige la energía</label><div class="chips" id="chips"></div></div>
-      <div class="sec"><label>Instrucciones extra (opcional)</label><input id="extra" placeholder="Ej: más lento, con acento colombiano, énfasis en la palabra amor…"></div>
+      <div class="sec"><label>2 · Elige el motor y la voz</label>
+        <div class="chips" id="motores" style="margin-bottom:10px"></div>
+        <select id="voz"></select>
+        <p class="ayuda" id="notaAzure" style="display:none;margin-top:8px">💠 Las voces <b>HD de Azure</b> leen el texto y actúan la emoción <b>por sí solas</b>. Las acotaciones <b>[pausa corta]</b>, <b>[pausa larga]</b>, <b>[respira]</b> y <b>[suspiro]</b> se convierten en silencios reales; las demás se omiten.</p>
+      </div>
+      <div class="sec" id="secEnergia"><label>3 · Elige la energía</label><div class="chips" id="chips"></div></div>
+      <div class="sec" id="secExtra"><label>Instrucciones extra (opcional)</label><input id="extra" placeholder="Ej: más lento, con acento colombiano, énfasis en la palabra amor…"></div>
       <div class="sec"><label>Nombre del audio (opcional)</label><input id="nombre" placeholder="Ej: meditación de la mañana"></div>
 
       <button class="big" id="btn">🎙️ Generar audio</button>
@@ -326,6 +330,7 @@ async function cargarEstado() {
     const d = await (await fetch("/api/estado", { headers: { Authorization: "Bearer " + token } })).json();
     $("nllaves").textContent = d.claves ?? "?";
     $("mejorador").style.display = d.deepseek ? "block" : "none";
+    window._azureOk = !!d.azure;
   } catch {}
 }
 
@@ -341,6 +346,28 @@ const VOCES = [
   {id:"Algenib",g:"M",d:"Grave, rasposo"},{id:"Rasalgethi",g:"M",d:"Informativo"},{id:"Alnilam",g:"M",d:"Firme y fuerte"},
   {id:"Schedar",g:"M",d:"Parejo, estable"},{id:"Achird",g:"M",d:"Amigable"},{id:"Zubenelgenubi",g:"M",d:"Casual, cercano"},
   {id:"Sadaltager",g:"M",d:"Sabio, experto"},{id:"Sadachbia",g:"M",d:"Vivaz"},{id:"Puck",g:"M",d:"Alegre, juguetón"},{id:"Fenrir",g:"M",d:"Enérgico"},
+];
+// Motor Azure: voces con nombre y acento reales de Azure. Las HD (Dragon HD)
+// son la generación 2026: detectan la emoción del texto y la actúan solas.
+const VOCES_AZURE = [
+  {id:"es-MX-Ximena:DragonHDLatestNeural",g:"F",n:"Ximena",d:"Mexicana · HD, actúa sola ⭐"},
+  {id:"es-ES-Ximena:DragonHDLatestNeural",g:"F",n:"Ximena (España)",d:"España · HD"},
+  {id:"es-CO-SalomeNeural",g:"F",n:"Salomé",d:"Colombiana"},
+  {id:"es-MX-DaliaNeural",g:"F",n:"Dalia",d:"Mexicana"},
+  {id:"es-AR-ElenaNeural",g:"F",n:"Elena",d:"Argentina"},
+  {id:"es-US-PalomaNeural",g:"F",n:"Paloma",d:"Latina (EE. UU.)"},
+  {id:"es-ES-ElviraNeural",g:"F",n:"Elvira",d:"España"},
+  {id:"es-MX-Tristan:DragonHDLatestNeural",g:"M",n:"Tristán",d:"Mexicano · HD, actúa solo ⭐"},
+  {id:"es-ES-Tristan:DragonHDLatestNeural",g:"M",n:"Tristán (España)",d:"España · HD"},
+  {id:"es-CO-GonzaloNeural",g:"M",n:"Gonzalo",d:"Colombiano"},
+  {id:"es-MX-JorgeNeural",g:"M",n:"Jorge",d:"Mexicano"},
+  {id:"es-AR-TomasNeural",g:"M",n:"Tomás",d:"Argentino"},
+  {id:"es-US-AlonsoNeural",g:"M",n:"Alonso",d:"Latino (EE. UU.)"},
+  {id:"es-ES-AlvaroNeural",g:"M",n:"Álvaro",d:"España"},
+];
+const MOTORES = [
+  {id:"gemini", etiqueta:"🌈 Google Gemini · gratis"},
+  {id:"azure", etiqueta:"💠 Azure · voces HD"},
 ];
 const BASE = " Habla en español latino, con voz natural y humana, nunca robótica.";
 const ENERGIAS = [
@@ -392,12 +419,37 @@ async function pcmToMp3(bytes, rate){
   return new Blob(out,{type:"audio/mpeg"});
 }
 
-let energia = ENERGIAS[0], msent = SENTIMIENTOS[0];
+let energia = ENERGIAS[0], msent = SENTIMIENTOS[0], motor = "gemini";
+
+function poblarVoces(){
+  const sel=$("voz"); sel.innerHTML="";
+  const lista = motor==="azure" ? VOCES_AZURE : VOCES;
+  const gf=document.createElement("optgroup"); gf.label="🌸 Voces femeninas"; const gm=document.createElement("optgroup"); gm.label="🌳 Voces masculinas";
+  for(const v of lista){ const o=document.createElement("option"); o.value=v.id; o.textContent=`${v.n||v.id} — ${v.d}`; (v.g==="F"?gf:gm).appendChild(o); }
+  sel.append(gf,gm);
+}
+
+function elegirMotor(m, chip){
+  if(m.id==="azure" && window._azureOk===false){
+    const est=$("estado"); est.className="estado err";
+    est.textContent="💠 El motor Azure aún no está configurado en el servidor (falta AZURE_SPEECH_KEY).";
+    return;
+  }
+  motor=m.id;
+  $("motores").querySelectorAll(".chip").forEach(x=>x.classList.remove("on"));
+  chip.classList.add("on");
+  poblarVoces();
+  const az = motor==="azure";
+  $("secEnergia").style.display = az ? "none" : "";
+  $("secExtra").style.display = az ? "none" : "";
+  $("notaAzure").style.display = az ? "" : "none";
+  const est=$("estado"); est.className="estado"; est.textContent="";
+}
 
 function iniciar(){
-  const sel=$("voz"); const gf=document.createElement("optgroup"); gf.label="🌸 Voces femeninas"; const gm=document.createElement("optgroup"); gm.label="🌳 Voces masculinas";
-  for(const v of VOCES){ const o=document.createElement("option"); o.value=v.id; o.textContent=`${v.id} — ${v.d}`; (v.g==="F"?gf:gm).appendChild(o); }
-  sel.append(gf,gm);
+  const mot=$("motores");
+  MOTORES.forEach((m,i)=>{ const c=document.createElement("button"); c.type="button"; c.className="chip"+(i===0?" on":""); c.textContent=m.etiqueta; c.onclick=()=>elegirMotor(m,c); mot.appendChild(c); });
+  poblarVoces();
   const chips=$("chips");
   ENERGIAS.forEach((e,i)=>{ const c=document.createElement("button"); c.type="button"; c.className="chip"+(i===0?" on":""); c.textContent=`${e.emoji} ${e.n}`; c.onclick=()=>{energia=e;chips.querySelectorAll(".chip").forEach(x=>x.classList.remove("on"));c.classList.add("on");}; chips.appendChild(c); });
   const mchips=$("mchips");
@@ -482,7 +534,7 @@ async function generar(){
   try{
     for(let i=0;i<partes.length;i++){
       est.textContent = partes.length>1 ? `Generando parte ${i+1} de ${partes.length}… ⏳` : "Generando tu audio… ⏳";
-      const r=await apiAuth("/api/generar",{texto:partes[i],voz:$("voz").value,instrucciones:inst});
+      const r=await apiAuth("/api/generar",{texto:partes[i],voz:$("voz").value,instrucciones:inst,motor});
       const d=await r.json(); if(!r.ok||d.error) throw new Error(d.error||"Error");
       const b=b64aBytes(d.pcm); pcmPartes.push(b); total+=b.length; rate=d.rate||rate; seg+=d.segundos||0;
       $("barfill").style.width=Math.round(((i+1)/partes.length)*90)+"%";
@@ -503,7 +555,7 @@ async function generar(){
     else { $("descargar").style.display="none"; }
     if(mp3){
       est.textContent="Guardando en tu Firebase… 💾";
-      try{ await guardar(mp3,nombre,$("voz").value,seg); est.textContent="✅ ¡Listo! WAV para descargar · MP3 guardado en la nube."; cargarLista(); }
+      try{ const vozLabel=$("voz").selectedOptions[0]?.textContent.split(" — ")[0] || $("voz").value; await guardar(mp3,nombre,vozLabel,seg); est.textContent="✅ ¡Listo! WAV para descargar · MP3 guardado en la nube."; cargarLista(); }
       catch(e){ est.className="estado err"; est.textContent="Audio listo, pero no se pudo guardar (¿Firestore creado?)."; }
     } else { est.textContent="✅ Audio listo. Descárgalo en WAV (alta calidad)."; }
   }catch(e){

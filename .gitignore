@@ -6,6 +6,7 @@ claves.txt
 gemini-key.txt
 gemini-keys.txt
 deepseek-key.txt
+azure-key.txt
 tts-key.txt
 clave-acceso.txt
 .env

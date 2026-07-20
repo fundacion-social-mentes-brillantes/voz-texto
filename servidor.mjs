@@ -18,6 +18,7 @@ if (!process.env.GEMINI_KEYS) {
   if (k) process.env.GEMINI_KEYS = k;
 }
 if (!process.env.DEEPSEEK_KEY) process.env.DEEPSEEK_KEY = leer("deepseek-key.txt");
+if (!process.env.AZURE_SPEECH_KEY) process.env.AZURE_SPEECH_KEY = leer("azure-key.txt").trim();
 
 const rutas = {
   "/api/estado": (await import("./api/estado.js")).default,
